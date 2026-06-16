@@ -247,4 +247,48 @@ async{
     return [];
   }
 
+  Future forgotPassword({required String mobile, required String email}) async {
+    try {
+      var data = FormData.fromMap({
+        "mobile": mobile,
+        "email": email,
+      });
+
+      Response response = await dio.post(ApiConst.forgotPassword, data: data);
+
+      if (response.statusCode == 200) {
+        return {
+          "code": response.statusCode,
+          "message": response.data["message"] ?? "Forgot password request submitted successfully.",
+          "success": true,
+        };
+      }
+      return {
+        "code": response.statusCode,
+        "message": response.data["message"] ?? "Failed to request forgot password.",
+        "success": false,
+      };
+    } on DioException catch (error) {
+      print("ForgotPassword API DioError: $error");
+      String errMsg = "An error occurred while communicating with the server.";
+      if (error.response != null && error.response?.data != null) {
+        if (error.response?.data is Map) {
+          errMsg = error.response?.data["message"] ?? errMsg;
+        }
+      }
+      return {
+        "code": error.response?.statusCode ?? 500,
+        "message": errMsg,
+        "success": false,
+      };
+    } catch (error) {
+      print("ForgotPassword API Error: $error");
+      return {
+        "code": 500,
+        "message": error.toString(),
+        "success": false,
+      };
+    }
+  }
+
 }

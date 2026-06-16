@@ -45,13 +45,15 @@ dependencies:
   geocoding: ^3.0.0
   flutter_launcher_icons: ^0.14.4
 
+  video_player: ^2.8.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/3-Concept.png"
+  image_path: "assets/logo.png"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -86,6 +88,8 @@ flutter:
     - assets/calendar.svg
     - assets/area.svg
     - assets/3-Concept.png
+    - assets/logo.png
+    - assets/logo.mp4
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
