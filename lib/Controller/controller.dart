@@ -23,6 +23,7 @@ class Controller extends GetxController{
   RxString companyImage = "".obs;
   RxBool imageLoader = false.obs;
   RxList<String> localCreatedTripKeys = <String>[].obs;
+  RxInt bottomIndex = 0.obs;
 
   @override
   void onInit() {

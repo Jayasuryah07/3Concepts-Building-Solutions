@@ -5,7 +5,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class HistoryPage extends StatefulWidget {
-  const HistoryPage({super.key});
+  final bool isEmbedded;
+  const HistoryPage({super.key, this.isEmbedded = false});
 
   @override
   State<HistoryPage> createState() => _HistoryPageState();
@@ -188,32 +189,50 @@ class _HistoryPageState extends State<HistoryPage> with SingleTickerProviderStat
 
     return Scaffold(
       backgroundColor: const Color(0xffF0F3FB),
-      appBar: AppBar(
-        backgroundColor: const Color(0xff2F5D7C),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Get.back(),
-        ),
-        title: const Text(
-          "Trip History",
-          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
-        ),
-        bottom: TabBar(
-          controller: _tabController,
-          indicatorColor: Colors.white,
-          indicatorWeight: 3,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white.withValues(alpha: 0.6),
-          labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          tabs: const [
-            Tab(text: "This Month"),
-            Tab(text: "Previous"),
-          ],
-        ),
-      ),
+      appBar: widget.isEmbedded
+          ? null
+          : AppBar(
+              backgroundColor: const Color(0xff2F5D7C),
+              elevation: 0,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () => Get.back(),
+              ),
+              title: const Text(
+                "Trip History",
+                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
+              ),
+              bottom: TabBar(
+                controller: _tabController,
+                indicatorColor: Colors.white,
+                indicatorWeight: 3,
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.white.withValues(alpha: 0.6),
+                labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                tabs: const [
+                  Tab(text: "This Month"),
+                  Tab(text: "Previous"),
+                ],
+              ),
+            ),
       body: Column(
         children: [
+          if (widget.isEmbedded)
+            Container(
+              color: const Color(0xff2F5D7C),
+              child: TabBar(
+                controller: _tabController,
+                indicatorColor: Colors.white,
+                indicatorWeight: 3,
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.white.withValues(alpha: 0.6),
+                labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                tabs: const [
+                  Tab(text: "This Month"),
+                  Tab(text: "Previous"),
+                ],
+              ),
+            ),
           _buildSummaryCard(activeTrips),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),

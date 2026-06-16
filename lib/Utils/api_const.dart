@@ -11,5 +11,8 @@ class ApiConst{
   static const createTrip = "${baseUrl}create-trip";
   static const updateProfile = "${baseUrl}update-profile";
   static const createSite = "${baseUrl}create-site";
+  static const changePassword = "${baseUrl}change-password";
+  static const deleteProfile = "${baseUrl}delete-profile";
+  static const forgotPassword = "${baseUrl}forgot-password";
 
 }
