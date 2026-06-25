@@ -15,7 +15,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.tcbs.agsolutions"
+    namespace = "com.concepts.agsolutions"
     compileSdk = 36
     ndkVersion = "29.0.14206865"
 
@@ -38,7 +38,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.tcbs.agsolutions"
+        applicationId = "com.concepts.agsolutions"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

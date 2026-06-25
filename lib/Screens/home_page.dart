@@ -305,14 +305,18 @@ class _HomePageState extends State<HomePage> {
               child: Obx(
                 () {
                   final displayCount = controller.tripHistoryDataList.length > 5 ? 5 : controller.tripHistoryDataList.length;
-                  return ListView.builder(
-                    itemCount: displayCount,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _buildHistoryTripCard(controller.tripHistoryDataList[index]),
-                      );
-                    },
+                  return RefreshIndicator(
+                    onRefresh: initData,
+                    child: ListView.builder(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: displayCount,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: _buildHistoryTripCard(controller.tripHistoryDataList[index]),
+                        );
+                      },
+                    ),
                   );
                 },
               ),

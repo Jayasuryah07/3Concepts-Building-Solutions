@@ -202,7 +202,7 @@ async{
     }
   }
 
-  Future<List<String>> fetchPlaceSuggestions(String input) async {
+  Future<List<Map<String, String>>> fetchPlaceSuggestions(String input) async {
     if (ConstHelper.googleMapsApiKey == "YOUR_GOOGLE_MAPS_API_KEY" || ConstHelper.googleMapsApiKey.isEmpty) {
       return [];
     }
@@ -228,11 +228,16 @@ async{
         if (suggestions == null) {
           return [];
         }
-        return suggestions
-            .map((s) => s["placePrediction"]?["text"]?["text"] as String?)
-            .where((text) => text != null)
-            .cast<String>()
-            .toList();
+        
+        List<Map<String, String>> results = [];
+        for (var s in suggestions) {
+          final text = s["placePrediction"]?["text"]?["text"] as String?;
+          final placeId = s["placePrediction"]?["placeId"] as String?;
+          if (text != null && placeId != null) {
+            results.add({"text": text, "placeId": placeId});
+          }
+        }
+        return results;
       }
     } catch (e) {
       print("Error fetching place suggestions from Places API (New): $e");
@@ -245,6 +250,32 @@ async{
       }
     }
     return [];
+  }
+
+  Future<String?> fetchPlaceDetailsUrl(String placeId) async {
+    if (ConstHelper.googleMapsApiKey == "YOUR_GOOGLE_MAPS_API_KEY" || ConstHelper.googleMapsApiKey.isEmpty) {
+      return null;
+    }
+    try {
+      final url = "https://places.googleapis.com/v1/places/$placeId?fields=googleMapsUri";
+      Response response = await dio.get(
+        url,
+        options: Options(
+          headers: {
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": ConstHelper.googleMapsApiKey,
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        return data["googleMapsUri"] as String?;
+      }
+    } catch (e) {
+      print("Error fetching place details url: $e");
+    }
+    return null;
   }
 
   Future forgotPassword({required String mobile, required String email}) async {

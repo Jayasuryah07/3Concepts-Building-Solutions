@@ -167,13 +167,14 @@ class Controller extends GetxController{
   Future<bool> addNewSite({
     required String siteName,
     required String siteAddress,
+    String siteUrl = "",
   }) async {
     try {
       final res = await ApiHelper.apiHelper.createSite(
         token: loginToken.value,
         siteName: siteName,
         siteAddress: siteAddress,
-        siteUrl: "", // Sending empty string to backend as it's removed from UI
+        siteUrl: siteUrl,
       );
       if (res != null && res["code"] == 200) {
         await getSites();

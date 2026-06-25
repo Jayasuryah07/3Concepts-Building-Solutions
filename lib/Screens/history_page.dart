@@ -328,30 +328,41 @@ class _HistoryPageState extends State<HistoryPage> with SingleTickerProviderStat
 
   Widget _buildTripList(List<TripDataModel> trips, String emptyMessage) {
     if (trips.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.history_outlined, size: 64, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            Text(
-              emptyMessage,
-              style: const TextStyle(
-                color: Color(0xff7C7C7C),
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
+      return RefreshIndicator(
+        onRefresh: () => controller.getTripHistory(),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.5,
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.history_outlined, size: 64, color: Colors.grey[400]),
+                const SizedBox(height: 16),
+                Text(
+                  emptyMessage,
+                  style: const TextStyle(
+                    color: Color(0xff7C7C7C),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(15),
-      itemCount: trips.length,
-      itemBuilder: (context, index) {
-        final trip = trips[index];
+    return RefreshIndicator(
+      onRefresh: () => controller.getTripHistory(),
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(15),
+        itemCount: trips.length,
+        itemBuilder: (context, index) {
+          final trip = trips[index];
         final formattedDate = trip.tripsDate != null
             ? DateFormat("dd MMM").format(trip.tripsDate!)
             : "";
@@ -461,6 +472,7 @@ class _HistoryPageState extends State<HistoryPage> with SingleTickerProviderStat
           ),
         );
       },
-    );
-  }
+    ),
+  );
+}
 }
