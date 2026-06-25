@@ -112,8 +112,9 @@ class _DashboardPageState extends State<DashboardPage> {
   void _showAddSiteDialog(BuildContext context) {
     TextEditingController newSiteController = TextEditingController();
     TextEditingController newAddressController = TextEditingController();
-    List<String> placeSuggestions = [];
+    List<Map<String, String>> placeSuggestions = [];
     bool isSearching = false;
+    String selectedPlaceUrl = "";
 
     showDialog(
       context: context,
@@ -224,9 +225,10 @@ class _DashboardPageState extends State<DashboardPage> {
                             TextField(
                               controller: newAddressController,
                               style: const TextStyle(fontSize: 14),
-                              onChanged: (val) async {
-                                if (val.trim().length > 2) {
-                                  setDialogState(() {
+                                onChanged: (val) async {
+                                  selectedPlaceUrl = ""; // reset URL if user types
+                                  if (val.trim().length > 2) {
+                                    setDialogState(() {
                                     isSearching = true;
                                   });
                                   final suggestions = await ApiHelper.apiHelper.fetchPlaceSuggestions(val);
@@ -280,14 +282,22 @@ class _DashboardPageState extends State<DashboardPage> {
                                   shrinkWrap: true,
                                   itemCount: placeSuggestions.length,
                                   itemBuilder: (context, idx) {
+                                    final suggestion = placeSuggestions[idx];
                                     return ListTile(
                                       dense: true,
-                                      title: Text(placeSuggestions[idx], style: const TextStyle(fontSize: 13)),
-                                      onTap: () {
+                                      title: Text(suggestion["text"] ?? "", style: const TextStyle(fontSize: 13)),
+                                      onTap: () async {
                                         setDialogState(() {
-                                          newAddressController.text = placeSuggestions[idx];
+                                          newAddressController.text = suggestion["text"] ?? "";
                                           placeSuggestions = [];
                                         });
+                                        final placeId = suggestion["placeId"];
+                                        if (placeId != null) {
+                                          final url = await ApiHelper.apiHelper.fetchPlaceDetailsUrl(placeId);
+                                          if (url != null) {
+                                            selectedPlaceUrl = url;
+                                          }
+                                        }
                                       },
                                     );
                                   },
@@ -323,6 +333,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                   bool success = await controller.addNewSite(
                                     siteName: name,
                                     siteAddress: address,
+                                    siteUrl: selectedPlaceUrl,
                                   );
                                   Loader.hideLoader(ConstHelper.navigatorKey.currentContext!);
                                   
@@ -543,8 +554,8 @@ class _DashboardPageState extends State<DashboardPage> {
         backgroundColor: Colors.transparent,
         elevation: 4,
         onPressed: () {
-          controller.selectFromSite.value.id = 1;
-          controller.selectToSite.value.id = 1;
+          controller.selectFromSite.value = SitesDataModel(id: 1);
+          controller.selectToSite.value = SitesDataModel(id: 1);
           controller.selectDate.value = DateFormat('dd/MM/yyyy').format(DateTime.now());
           controller.selectTime.value = DateFormat('hh:mm').format(DateTime.now());
           
@@ -635,11 +646,13 @@ class _DashboardPageState extends State<DashboardPage> {
                                                 ),
                                               ),
                                               onTap: () async {
+                                                final now = DateTime.now();
+                                                final today = DateTime(now.year, now.month, now.day);
                                                 DateTime? pickedDate = await showDatePicker(
                                                   context: context,
-                                                  initialDate: DateTime.now(),
-                                                  firstDate: DateTime.now(),
-                                                  lastDate: DateTime(2100),
+                                                  initialDate: today,
+                                                  firstDate: today,
+                                                  lastDate: today,
                                                 );
 
                                                 if (pickedDate != null) {

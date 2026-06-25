@@ -6,7 +6,9 @@ import 'package:concepts/Utils/const_helper.dart';
 import 'package:concepts/Utils/loader.dart';
 import 'package:concepts/Utils/shared_pref.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:get/get.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -23,6 +25,7 @@ class _LoginPageState extends State<LoginPage> {
   
   bool _obscurePassword = true;
   bool _isHovered = false;
+  bool _isTermsAccepted = false;
 
   @override
   void initState() {
@@ -36,6 +39,101 @@ class _LoginPageState extends State<LoginPage> {
     txtUserName.dispose();
     txtPassword.dispose();
     super.dispose();
+  }
+
+  // Method to show WebView dialog
+  void _showWebViewDialog(String title, String url) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext dialogContext) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          elevation: 20,
+          backgroundColor: Colors.white,
+          child: Container(
+            width: Get.width * 0.9,
+            height: Get.height * 0.8,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                // Header with title and close button
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: const Color(0xff2F5D7C),
+                        fontSize: Get.width * 0.05,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.pop(dialogContext);
+                      },
+                      icon: Icon(
+                        Icons.close_rounded,
+                        color: Colors.grey.shade700,
+                        size: 30,
+                      ),
+                    ),
+                  ],
+                ),
+                const Divider(),
+                // WebView
+                Expanded(
+                  child: WebViewWidget(
+                    controller: WebViewController()
+                      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+                      ..setBackgroundColor(const Color(0x00000000))
+                      ..setNavigationDelegate(
+                        NavigationDelegate(
+                          onProgress: (int progress) {
+                            // Update loading progress if needed
+                          },
+                          onPageStarted: (String url) {
+                            // Page started loading
+                          },
+                          onPageFinished: (String url) {
+                            // Page finished loading
+                          },
+                          onWebResourceError: (WebResourceError error) {
+                            // Handle error
+                            if (dialogContext.mounted) {
+                              ScaffoldMessenger.of(dialogContext).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "Failed to load page. Please try again.",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  backgroundColor: Colors.red.shade700,
+                                  duration: const Duration(seconds: 3),
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      )
+                      ..loadRequest(Uri.parse(url)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _showForgotPasswordDialog() {
@@ -794,6 +892,85 @@ class _LoginPageState extends State<LoginPage> {
                             
                             SizedBox(height: Get.height * 0.02),
                             
+                            // Terms and Conditions Checkbox
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: Checkbox(
+                                    value: _isTermsAccepted,
+                                    onChanged: (bool? value) {
+                                      setState(() {
+                                        _isTermsAccepted = value ?? false;
+                                      });
+                                    },
+                                    activeColor: const Color(0xff2F5D7C),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    side: BorderSide(
+                                      color: const Color(0xff2F5D7C).withOpacity(0.4),
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: Get.width * 0.02),
+                                Expanded(
+                                  child: RichText(
+                                    text: TextSpan(
+                                      style: TextStyle(
+                                        color: Colors.grey.shade700,
+                                        fontSize: Get.width * 0.035,
+                                        height: 1.5,
+                                      ),
+                                      children: [
+                                        const TextSpan(
+                                          text: "I agree to the ",
+                                        ),
+                                        TextSpan(
+                                          text: "Terms & Conditions",
+                                          style: TextStyle(
+                                            color: const Color(0xff2F5D7C),
+                                            fontWeight: FontWeight.w600,
+                                            decoration: TextDecoration.underline,
+                                          ),
+                                          recognizer: TapGestureRecognizer()
+                                            ..onTap = () {
+                                              _showWebViewDialog(
+                                                'Terms & Conditions',
+                                                'https://3concepts.in/privacy-policy/'
+                                              );
+                                            },
+                                        ),
+                                        const TextSpan(
+                                          text: " and ",
+                                        ),
+                                        TextSpan(
+                                          text: "Privacy Policy",
+                                          style: TextStyle(
+                                            color: const Color(0xff2F5D7C),
+                                            fontWeight: FontWeight.w600,
+                                            decoration: TextDecoration.underline,
+                                          ),
+                                          recognizer: TapGestureRecognizer()
+                                            ..onTap = () {
+                                              _showWebViewDialog(
+                                                'Privacy Policy',
+                                                'https://3concepts.in/privacy-policy/'
+                                              );
+                                            },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            
+                            SizedBox(height: Get.height * 0.015),
+                            
                             // Login Button with animation
                             MouseRegion(
                               onEnter: (_) => setState(() => _isHovered = true),
@@ -808,6 +985,28 @@ class _LoginPageState extends State<LoginPage> {
                                       highlightColor: Colors.transparent,
                                       splashColor: Colors.transparent,
                                       onTap: () {
+                                        // Check if terms are accepted
+                                        if (!_isTermsAccepted) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: const Text(
+                                                "Please accept the Terms & Conditions and Privacy Policy",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              backgroundColor: Colors.orange.shade700,
+                                              duration: const Duration(seconds: 2),
+                                              behavior: SnackBarBehavior.floating,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(10),
+                                              ),
+                                            ),
+                                          );
+                                          return;
+                                        }
+                                        
                                         if (key.currentState!.validate()) {
                                           Loader.showLoader(
                                             ConstHelper.navigatorKey.currentContext!,
